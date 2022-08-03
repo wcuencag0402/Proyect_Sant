@@ -35,6 +35,7 @@ def check_input(input_file):
 
 
 def read_input(input_file):
+    # causistica varios ficheros
     '''
     def: reads input file
     params: input file (.csv)
@@ -49,7 +50,6 @@ def read_input(input_file):
         if has_header:
             df = pd.read_csv(input_file, sep=delimiter)
             print('File read with detected header and delimiter')
-            print(df)
             return df
         else:
             raise Exception ("No headers provided")
@@ -60,10 +60,33 @@ def read_input(input_file):
         else:
             print(f)
 
+def transpose(dataframe, transpose_bool):
+    '''
+    def: takes column names and adds a column 'CLASS' filled with the column name, changes 
+        column names to 'FIELD' and concats dataframe
+    params: dataframe
+    return: dataframe
+    '''
+    if transpose_bool:
+        df=dataframe.copy()
+        if 'Unnamed: 0' in df.columns:
+            df = df.drop('Unnamed: 0', axis=1)
+        lista_df = []
+        for col in df:
+            df['CLASS'] = col
+            df['FIELD'] = df[col]
+            lista_df.append(df[['FIELD', 'CLASS']])
+        
+        concat_df = pd.concat(lista_df, axis=0).reset_index(drop=True)
+        return concat_df
+    else:
+        return dataframe
+
     
 
 if __name__ == "__main__":
     input_file = config['input_info']['input_file']
-    read_input(input_file)
-    
+    transpose_bool = config['input_info']['transpose']
+    file = read_input(input_file)
+    transpose(file, transpose_bool)
     
