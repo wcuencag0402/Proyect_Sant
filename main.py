@@ -50,6 +50,7 @@ def read_input(input_file):
         if has_header:
             df = pd.read_csv(input_file, sep=delimiter)
             print('File read with detected header and delimiter')
+            
             return df
         else:
             raise Exception ("No headers provided")
@@ -68,25 +69,24 @@ def transpose(dataframe, transpose_bool):
     return: dataframe
     '''
     if transpose_bool:
-        df=dataframe.copy()
-        if 'Unnamed: 0' in df.columns:
-            df = df.drop('Unnamed: 0', axis=1)
+        df = pd.DataFrame()
         lista_df = []
-        for col in df:
+        for col in dataframe:
             df['CLASS'] = col
-            df['FIELD'] = df[col]
+            df['FIELD'] = dataframe[col]
             lista_df.append(df[['FIELD', 'CLASS']])
-        
         concat_df = pd.concat(lista_df, axis=0).reset_index(drop=True)
         return concat_df
     else:
-        return dataframe
+        df = dataframe
+        return df
 
     
 
 if __name__ == "__main__":
     input_file = config['input_info']['input_file']
     transpose_bool = config['input_info']['transpose']
-    file = read_input(input_file)
-    transpose(file, transpose_bool)
+    read_df = read_input(input_file)
+    transpose_df = transpose(read_df, True)
+    print(transpose_df)
     
