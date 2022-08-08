@@ -92,7 +92,9 @@ class CleanData:
         return: dataframe with chars replaced
         '''
         self.df = self.change_datetime()
-        return self.replace_chars()
+        self.df = self.replace_chars()
+        
+        return self.df
 
 
 if __name__ == '__main__':
