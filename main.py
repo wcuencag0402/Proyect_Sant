@@ -6,7 +6,7 @@ from csv import Error
 
 from configparser import ConfigParser
 from ML_flow.clean_data import CleanData
-#from ML_flow.reports import report_quality
+from ML_flow.general_reports import report_quality
 
 
 file = './Config/config.ini'
@@ -90,8 +90,12 @@ if __name__ == "__main__":
     transpose_bool = config['input_info']['clean_transpose'] 
 
     read_df = read_input(input_file)
-    # report_df = .....
+
+    report = report_quality(read_df)
+    reporte = report.run_report(read_df)
+
     dataCleaner = CleanData(read_df)
     newdf = dataCleaner.run_clean()  
+
     transpose_df = transpose(newdf, transpose_bool)
     print(transpose_df)
