@@ -51,9 +51,9 @@ class report_quality:
         for column in df:
             reports_df.loc[column] = self.calculate_statistics(df, column)
             
-        volumetry_result = self.check_volumetry(df, df)
+        vol_input, vol_output, volumetry_result = self.check_volumetry(df, df)
         
-        return self.export_to_xls(reports_df, volumetry_result)
+        return self.export_to_xls(reports_df, vol_input, vol_output, volumetry_result)
         
     def calculate_nulls(self, df, column_name):
         '''
@@ -85,10 +85,12 @@ class report_quality:
         params: dataframe input, dataframe output
         return: Dataframe only true or false
         '''
+        vol_input = f'input:    {df_in.shape[1]} columns, {df_in.shape[0]} rows'
+        vol_output = f'output:  {df_out.shape[1]} columns, {df_out.shape[0]} rows'
         
-        return df_in.equals(df_out)
+        return vol_input, vol_output, df_in.equals(df_out)
     
-    def export_to_xls(self, df_quality, volumetry_result):
+    def export_to_xls(self, df_quality, vol_input, vol_output, volumetry_result):
         '''
         def: Export dataframe to xls format (Excel)
         params: dataframe
@@ -117,8 +119,10 @@ class report_quality:
             i += 1
 
         sheet_volumetry.write(0, 0, 'Volumetry is equal in input data and output data:')
-        sheet_volumetry.write(1, 0, volumetry_result)
-        
+        sheet_volumetry.write(1, 1, volumetry_result)
+        sheet_volumetry.write(2, 1, vol_input)
+        sheet_volumetry.write(3, 1, vol_output)
+
         report_name = 'quality_report.xls'
         wb.save(os.path.join(self.out_path, report_name))
         print("Saved correctly")
