@@ -1,6 +1,6 @@
 from gc import get_threshold
 import pandas as pd
-import regex as re
+import re
 import configparser
 
 class CleanData:
@@ -12,6 +12,7 @@ class CleanData:
               'è':'e', 'ì': 'i', 'ò': 'o', 'ù': 'u'}
         self.domains_spain = ['es', 'com', 'net', 'eu', 'org', 'cat', 'info', 'biz', 'gal', 'eus']
         self.threshold = self.get_threshold()
+        self.clean_bool = self.get_clean_bool()
 
     def get_threshold(self):
         '''
@@ -22,8 +23,20 @@ class CleanData:
         file = './Config/config.ini'
         config = configparser.ConfigParser()
         config.read(file)
-        self.threshold = float(config['input_info']['threshold'])
-        return self.threshold
+        threshold = float(config['input_info']['threshold'])
+        return threshold
+
+    def get_clean_bool(self):
+        '''
+        Def: get param clean_bool from configuration file
+        param
+        return: clean_bool param
+        '''
+        file = './Config/config.ini'
+        config = configparser.ConfigParser()
+        config.read(file)
+        clean_bool = config['input_info']['clean_transpose']
+        return clean_bool
     
     def change_datetime(self):
         '''
@@ -91,8 +104,13 @@ class CleanData:
         params
         return: dataframe with chars replaced
         '''
-        self.df = self.change_datetime()
-        self.df = self.replace_chars()
+        clean = eval(self.clean_bool)
+        
+        if clean:
+            self.df = self.change_datetime()
+            self.df = self.replace_chars()
+        return self.df
+        
 
 
 if __name__ == '__main__':
