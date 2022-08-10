@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 import os.path
+import os
 from configparser import ConfigParser
 import openpyxl
 import sys
@@ -14,25 +15,50 @@ import configparser
 class report_quality:
 
     def __init__(self, df):
-        self.out_path = ''
         self.name_columns = ['column_name',
                             'total_values',
                             'null_values',
                             'unique_values',
                             'duplicate_values']
         self.output_path = self.get_output_path()
+        self.duplicate_name = self.get_duplicatefilename()
+        self.quality_name = self.get_qualityfilename()
 
     def get_output_path(self):
         '''
-        Def: get param threshold from configuration file
+        Def: get param output_path from configuration file
         param
-        return: threshold param
+        return: output_path param
         '''
         file = './Config/config.ini'
         config = configparser.ConfigParser()
         config.read(file)
         output_path = config['report_info']['path_output']
         return output_path
+
+    def get_duplicatefilename(self):
+        '''
+        Def: get param filename from configuration file
+        param
+        return: filename param
+        '''
+        file = './Config/config.ini'
+        config = configparser.ConfigParser()
+        config.read(file)
+        duplicate_file = config['report_info']['duplicate_file']
+        return duplicate_file
+
+    def get_qualityfilename(self):
+        '''
+        Def: get param quality file from configuration file
+        param
+        return: quality param
+        '''
+        file = './Config/config.ini'
+        config = configparser.ConfigParser()
+        config.read(file)
+        quality_file = config['report_info']['report_file']
+        return quality_file        
         
     def calculate_statistics(self, df, column):
         '''
@@ -42,6 +68,7 @@ class report_quality:
         '''
 
         output_path = self.output_path
+        duplicate_name = self.duplicate_name
 
         column_name = column
         total_values = len(df.index)
@@ -63,7 +90,8 @@ class report_quality:
                 dict_total[duplicates_df.index.name] = dict_duplicates
         
         for k,v in dict_total.items():
-            with open(output_path+str(k)+'.csv', 'w') as csvfile:
+            print(output_path+ str(k) + duplicate_name)
+            with open(output_path+ str(k) + duplicate_name , 'w') as csvfile:
                 fields = ['Value', 'Repeated']
                 writer = csv.DictWriter(csvfile, delimiter=';', fieldnames= fields, 
                 lineterminator='\n')
@@ -135,7 +163,7 @@ class report_quality:
         params: dataframe
         return: Dataframe in xls format
         '''
-        report_name = 'quality_report.xlsx'
+        report_name = self.quality_name
         
         wb = Workbook()
         sheet_quality = wb.add_sheet('Quality_validations')
@@ -161,9 +189,9 @@ class report_quality:
         sheet_volumetry.write(1, 2, vol_input)
         sheet_volumetry.write(2, 1, 'Output:')
         sheet_volumetry.write(2, 2, vol_output)
-
-        report_name = 'quality_report.xls'
-        wb.save(os.path.join(self.out_path, report_name))
+        output = os.path.join(self.output_path,report_name)
+        wb.save(self.output_path+report_name)
+        #wb.save(output)
         print("Saved correctly")
 
 
