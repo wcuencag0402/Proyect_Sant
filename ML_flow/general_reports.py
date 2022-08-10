@@ -4,9 +4,11 @@ import re
 import os.path
 from configparser import ConfigParser
 import openpyxl
-
-import os.path
+import sys
 from xlwt import Workbook
+import csv
+import configparser
+
 
 
 class report_quality:
@@ -18,6 +20,19 @@ class report_quality:
                             'null_values',
                             'unique_values',
                             'duplicate_values']
+        self.output_path = self.get_output_path()
+
+    def get_output_path(self):
+        '''
+        Def: get param threshold from configuration file
+        param
+        return: threshold param
+        '''
+        file = './Config/config.ini'
+        config = configparser.ConfigParser()
+        config.read(file)
+        output_path = config['report_info']['path_output']
+        return output_path
         
     def calculate_statistics(self, df, column):
         '''
@@ -26,23 +41,39 @@ class report_quality:
         return: dataframes
         '''
 
+        output_path = self.output_path
+
         column_name = column
         total_values = len(df.index)
-        nulls = self.calculate_nulls(df, column)
-        uniques = self.calculate_unique_values(df, column)
+        nulls = self.calculate_nulls(df, column) 
+        uniques = self.calculate_unique_values(df, column) 
         duplicates_df = self.calculate_duplicates(df, column)
 
         list_duplicates = []
         total_duplicates = 0
 
+        dict_duplicates = {}
+        dict_total= {}        
+
         for index in duplicates_df.index:
             if duplicates_df[index] > 1:
                 total_duplicates += duplicates_df[index]
                 list_duplicates.append(index)
-                    
+                dict_duplicates[index] = duplicates_df[index]
+                dict_total[duplicates_df.index.name] = dict_duplicates
+        
+        for k,v in dict_total.items():
+            with open(output_path+str(k)+'.csv', 'w') as csvfile:
+                fields = ['Value', 'Repeated']
+                writer = csv.DictWriter(csvfile, delimiter=';', fieldnames= fields, 
+                lineterminator='\n')
+                writer.writeheader()
+
+                for i,j in v.items():
+                    writer.writerow({'Value':i, 'Repeated':j})
+                 
         return [column_name, total_values, nulls, uniques, total_duplicates]
             
-
 
     def run_report(self, df):
         '''
@@ -83,8 +114,7 @@ class report_quality:
         params: dataframe, column of dataframe
         return: Dataframe containing two columns: 1st is value duplicated and 2nd is how many times
         '''
-        return df.pivot_table(columns=[column_name], aggfunc='size')
-
+        return df.pivot_table(index=[column_name], aggfunc='size')
 
     
     def check_volumetry(self, df_in, df_out):
@@ -110,9 +140,7 @@ class report_quality:
         wb = Workbook()
         sheet_quality = wb.add_sheet('Quality_validations')
         sheet_volumetry = wb.add_sheet('Volumetry')
-        
-        #sheet.write(row, col data, style)
-        
+                
         x = 0
         for name in self.name_columns:
             sheet_quality.write(0, x, name)
