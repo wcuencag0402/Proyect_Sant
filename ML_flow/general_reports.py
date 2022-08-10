@@ -75,7 +75,7 @@ class report_quality:
         return [column_name, total_values, nulls, uniques, total_duplicates]
             
 
-def run_report(self, df):
+    def run_report(self, df):
         '''
         def: Run data quality report
         params: dataframe
@@ -113,7 +113,7 @@ def run_report(self, df):
         def: Get number of duplicate values in a column
         params: dataframe, column of dataframe
         return: Dataframe containing two columns: 1st is value duplicated and 2nd is how many times
-
+        '''
         return df.pivot_table(index=[column_name], aggfunc='size')
 
     
