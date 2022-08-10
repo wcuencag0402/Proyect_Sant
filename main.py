@@ -6,7 +6,7 @@ from csv import Error
 
 from configparser import ConfigParser
 from ML_flow.clean_data import CleanData
-#from ML_flow.reports import report_quality
+from ML_flow.general_reports import report_quality
 
 
 file = './Config/config.ini'
@@ -32,9 +32,9 @@ def check_input(input_file):
             print('Header and delimiter detected')
     except(Error):
         raise Exception ('No delimiter detected')
-        
+    
     return has_header, delimiter
-
+    
 
 def read_input(input_file):
     # causistica varios ficheros
@@ -50,9 +50,9 @@ def read_input(input_file):
         has_header, delimiter = check_input(input_file)
 
         if has_header:
-            df = pd.read_csv(input_file, sep=delimiter)
+            df = pd.read_csv(input_file, sep=delimiter, quoting=csv.QUOTE_ALL, keep_default_na=False)
             print('File read with detected header and delimiter')
-            
+
             return df
         else:
             raise Exception ("No headers provided")
@@ -70,7 +70,7 @@ def transpose(dataframe, transpose_bool):
     params: dataframe
     return: dataframe
     '''
-    if transpose_bool:
+    if eval(transpose_bool):
         df = pd.DataFrame()
         lista_df = []
         for col in dataframe:
@@ -87,11 +87,15 @@ def transpose(dataframe, transpose_bool):
 
 if __name__ == "__main__":
     input_file = config['input_info']['input_file']
-    transpose_bool = config['input_info']['transpose'] 
-    
+    transpose_bool = config['input_info']['clean_transpose'] 
+
     read_df = read_input(input_file)
-    # report_df = .....
+
+    report = report_quality(read_df)
+    reporte = report.run_report(read_df)
+
     dataCleaner = CleanData(read_df)
-    newdf = dataCleaner.run_clean()   
-    transpose_df = transpose(newdf, True)
+    newdf = dataCleaner.run_clean()  
+
+    transpose_df = transpose(newdf, transpose_bool)
     print(transpose_df)
