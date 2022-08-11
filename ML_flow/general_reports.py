@@ -20,55 +20,32 @@ class report_quality:
                             'null_values',
                             'unique_values',
                             'duplicate_values']
-        self.output_path = self.get_output_path()
-        self.duplicate_name = self.get_duplicatefilename()
-        self.quality_name = self.get_qualityfilename()
+        self.output_path, self.duplicate_name, self.quality_name = self.get_config_data()
+    
 
-    def get_output_path(self):
+    def get_config_data(self):
         '''
-        Def: get param output_path from configuration file
+        Def: get config params from configuration file
         param
         return: output_path param
         '''
         file = './Config/config.ini'
         config = configparser.ConfigParser()
         config.read(file)
-        output_path = config['report_info']['path_output']
-        return output_path
+        report_info = config['report_info']
+        output_path = report_info['path_output']
+        duplicate_file = report_info['duplicate_file']
+        quality_file = report_info['report_file']
 
-    def get_duplicatefilename(self):
-        '''
-        Def: get param filename from configuration file
-        param
-        return: filename param
-        '''
-        file = './Config/config.ini'
-        config = configparser.ConfigParser()
-        config.read(file)
-        duplicate_file = config['report_info']['duplicate_file']
-        return duplicate_file
+        return output_path, duplicate_file, quality_file
 
-    def get_qualityfilename(self):
-        '''
-        Def: get param quality file from configuration file
-        param
-        return: quality param
-        '''
-        file = './Config/config.ini'
-        config = configparser.ConfigParser()
-        config.read(file)
-        quality_file = config['report_info']['report_file']
-        return quality_file        
-        
+    
     def calculate_statistics(self, df, column):
         '''
         def: Calculate statistics form all columns in dataframes
         param: datframes
         return: dataframes
         '''
-
-        output_path = self.output_path
-        duplicate_name = self.duplicate_name
 
         column_name = column
         total_values = len(df.index)
@@ -90,8 +67,7 @@ class report_quality:
                 dict_total[duplicates_df.index.name] = dict_duplicates
         
         for k,v in dict_total.items():
-            print(output_path+ str(k) + duplicate_name)
-            with open(output_path+ str(k) + duplicate_name , 'w') as csvfile:
+            with open(self.output_path+ str(k) + self.duplicate_name , 'w') as csvfile:
                 fields = ['Value', 'Repeated']
                 writer = csv.DictWriter(csvfile, delimiter=';', fieldnames= fields, 
                 lineterminator='\n')
@@ -190,8 +166,7 @@ class report_quality:
         sheet_volumetry.write(2, 1, 'Output:')
         sheet_volumetry.write(2, 2, vol_output)
         output = os.path.join(self.output_path,report_name)
-        wb.save(self.output_path+report_name)
-        #wb.save(output)
+        wb.save(output)
         print("Saved correctly")
 
 
