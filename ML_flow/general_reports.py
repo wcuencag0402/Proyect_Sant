@@ -139,7 +139,7 @@ class report_quality:
         params: dataframe
         return: Dataframe in xls format
         '''
-        
+    
         wb = Workbook()
         sheet_quality = wb.add_sheet('Quality_validations')
         sheet_volumetry = wb.add_sheet('Volumetry')
