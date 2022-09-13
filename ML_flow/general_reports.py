@@ -139,8 +139,7 @@ class report_quality:
         params: dataframe
         return: Dataframe in xls format
         '''
-        report_name = self.quality_name
-        
+    
         wb = Workbook()
         sheet_quality = wb.add_sheet('Quality_validations')
         sheet_volumetry = wb.add_sheet('Volumetry')
@@ -165,7 +164,7 @@ class report_quality:
         sheet_volumetry.write(1, 2, vol_input)
         sheet_volumetry.write(2, 1, 'Output:')
         sheet_volumetry.write(2, 2, vol_output)
-        output = os.path.join(self.output_path,report_name)
+        output = os.path.join(self.output_path,self.quality_name)
         wb.save(output)
         print("Saved correctly")
 
